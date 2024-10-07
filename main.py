@@ -20,11 +20,29 @@ async def user_registraion(user:User):
         raise HTTPException(
             status_code=404,detail='user with this email already exist'
         )
+    if not user.name :
+        raise HTTPException(
+            status_code=404,detail='name field is required'
+        ) 
     
+    if not user.email :
+        raise HTTPException(
+            status_code=404,detail='email field is required'
+        ) 
+    if not user.password :
+        raise HTTPException(
+            status_code=404,detail='password field is required'
+        ) 
+    if not user.confirm_password:
+        raise HTTPException(
+            status_code=404,detail='confirm password  field is required'
+        ) 
+        
     if user.password != user.confirm_password:
          raise HTTPException(
              status_code=404,detail='password and confirm password did not match'
          )
+   
     
     user_inserted=user_registration.insert_one(dict(user)) #register the student if not already registered 
 
