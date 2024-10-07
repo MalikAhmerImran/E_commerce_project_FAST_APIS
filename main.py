@@ -1,7 +1,10 @@
 from pymongo import MongoClient
 from models import User
 from fastapi import FastAPI,HTTPException
+from fastapi.encoders import jsonable_encoder
+import jwt
 
+SECRET_KEY="malikahmerimrn1234567890987654321@#$%^*()"
 
 client=MongoClient()
 
@@ -10,9 +13,9 @@ user_registration=user['user_registration']  #creating the collection with user_
 
 app=FastAPI()
 
-@app.post('/register/')
+@app.post('/user/register')
 
-async def user_registraion(user:User):
+async def user_register(user:User):
 
     already_registered_user=user_registration.find_one({'email':user.email}) # checking that user already registered or not
 
@@ -54,3 +57,19 @@ async def user_registraion(user:User):
     }
 
 
+@app.post('/user/login')
+async def user_login(email,password):
+    user=user_registration.find_one({'email':email})
+
+    if not user:
+        raise HTTPException(
+            status_code=404,detail='user with this email does not exists'
+        )
+    
+    data=jsonable_encoder(email,password)
+
+    encoded_jwt=jwt.encode(data,SECRET_KEY,algorithm='HS256')
+    
+
+
+    
