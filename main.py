@@ -1,10 +1,16 @@
 from pymongo import MongoClient
-from models import User
 from fastapi import FastAPI,HTTPException
 from fastapi.encoders import jsonable_encoder
 import jwt
+from models import  UserRegister,UserLogin
+import os 
+from dotenv import load_dotenv
 
-SECRET_KEY="malikahmerimrn1234567890987654321@#$%^*()"
+
+load_dotenv()
+
+SECRET_KEY=os.getenv('SECRET_KEY')
+
 
 client=MongoClient()
 
@@ -15,7 +21,7 @@ app=FastAPI()
 
 @app.post('/user/register')
 
-async def user_register(user:User):
+async def user_register(user:UserRegister):
 
     already_registered_user=user_registration.find_one({'email':user.email}) # checking that user already registered or not
 
@@ -23,33 +29,31 @@ async def user_register(user:User):
         raise HTTPException(
             status_code=404,detail='user with this email already exist'
         )
-    if not user.name :
+    if not user.name :  # check for user name is manadatory
         raise HTTPException(
-            status_code=404,detail='name field is required'
+            status_code=400,detail='name field is required'  
         ) 
     
-    if not user.email :
+    if not user.email : # check for user email is manadatory
         raise HTTPException(
-            status_code=404,detail='email field is required'
+            status_code=400,detail='email field is required'
         ) 
-    if not user.password :
+    if not user.password : # check for user password is manadatory
         raise HTTPException(
-            status_code=404,detail='password field is required'
+            status_code=400,detail='password field is required'
         ) 
-    if not user.confirm_password:
+    if not user.confirm_password: # check for user confirm password is manadatory
         raise HTTPException(
-            status_code=404,detail='confirm password  field is required'
+            status_code=400,detail='confirm password  field is required'
         ) 
         
-    if user.password != user.confirm_password:
+    if user.password != user.confirm_password: # check for password and confirm password did not match
          raise HTTPException(
-             status_code=404,detail='password and confirm password did not match'
+             status_code=400,detail='password and confirm password did not match'
          )
    
     
     user_inserted=user_registration.insert_one(dict(user)) #register the student if not already registered 
-
-    print(type(user))
 
 
     return {
@@ -58,18 +62,23 @@ async def user_register(user:User):
 
 
 @app.post('/user/login')
-async def user_login(email,password):
-    user=user_registration.find_one({'email':email})
+async def user_login(login:UserLogin):
+    user=user_registration.find_one({'email':login.email})
 
-    if not user:
+    if not user:  # user not registered 
         raise HTTPException(
-            status_code=404,detail='user with this email does not exists'
+            status_code=204,detail='user with this email does not exists'
         )
     
-    data=jsonable_encoder(email,password)
+    data=jsonable_encoder(login.email,login.password) #encoder to convert the jsonable data
 
-    encoded_jwt=jwt.encode(data,SECRET_KEY,algorithm='HS256')
+
+    encoded_jwt=jwt.encode({'data':data},SECRET_KEY,algorithm='HS256')  #creating the token for registered user
+
+    return {
+         'message':'login successfully',
+        'token':encoded_jwt
+    }
     
 
 
-    
