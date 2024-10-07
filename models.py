@@ -7,6 +7,10 @@ class UserRegister(BaseModel):   #creating the model of user
     confirm_password:str
 
 
-class UserLogin(BaseModel):
+class UserLogin(BaseModel): #creating the model of user login
     email:str
     password:str
+
+
+
+    

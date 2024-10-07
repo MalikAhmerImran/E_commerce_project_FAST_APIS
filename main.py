@@ -29,24 +29,21 @@ async def user_register(user:UserRegister):
         raise HTTPException(
             status_code=404,detail='user with this email already exist'
         )
-    if not user.name :  # check for user name is manadatory
+    required_fields = {
+    'name': user.name,
+    'email': user.email,
+    'password': user.password,
+    'confirm_password': user.confirm_password,
+}
+
+    missing_fields = [field for field, value in required_fields.items() if not value]
+
+    if missing_fields:
         raise HTTPException(
-            status_code=400,detail='name field is required'  
-        ) 
-    
-    if not user.email : # check for user email is manadatory
-        raise HTTPException(
-            status_code=400,detail='email field is required'
-        ) 
-    if not user.password : # check for user password is manadatory
-        raise HTTPException(
-            status_code=400,detail='password field is required'
-        ) 
-    if not user.confirm_password: # check for user confirm password is manadatory
-        raise HTTPException(
-            status_code=400,detail='confirm password  field is required'
-        ) 
-        
+        status_code=400,
+        detail=f"The following fields are mandatory: {', '.join(missing_fields)}"
+    )
+   
     if user.password != user.confirm_password: # check for password and confirm password did not match
          raise HTTPException(
              status_code=400,detail='password and confirm password did not match'
