@@ -29,5 +29,14 @@ class Product(BaseModel):
     token:str
    
     
+#creating the model of shopping cart 
+
+class ShoppingCart(BaseModel):
+    customer_id:str
+    items:list
+    sub_total:int
+    tax:int
+    shipping:int
+    
 
     
