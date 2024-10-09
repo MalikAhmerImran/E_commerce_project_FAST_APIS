@@ -1,16 +1,33 @@
 from pydantic import BaseModel
 
-class UserRegister(BaseModel):   #creating the model of user 
+
+#creating the model of user 
+
+class UserRegister(BaseModel):   
     name:str
     email:str
     password:str
     confirm_password:str
+    is_admin:bool=False
 
 
-class UserLogin(BaseModel): #creating the model of user login
+#creating the model of user login
+
+class UserLogin(BaseModel): 
     email:str
     password:str
 
 
+
+#creating the model of product
+
+class Product(BaseModel):
+    name:str
+    price:int
+    description:str
+    category:str
+    token:str
+   
+    
 
     
