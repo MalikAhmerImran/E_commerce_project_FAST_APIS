@@ -32,7 +32,7 @@ async def user_register(user: UserRegister):
     already_registered_user = find_user_by_email(user.email) 
     if already_registered_user:
         raise HTTPException(
-            status_code=404, detail='User with this email already exists'
+            status_code=409, detail='User with this email already exists'
         )
     
    
@@ -91,17 +91,13 @@ async def user_login(login: UserLogin):
 
 @router.post('/product/create')
 async def product_create(product:Product):
-    print("Product creation endpoint hit")  # Debugging statement
 
-    print(product.token)
     user=get_user(product.token)
-
-    print(user)
 
     if user['is_admin'] is False:
 
         raise HTTPException(
-            status_code=400, detail='your can not add the product beause you are not the user'
+            status_code=403, detail='your can not add the product because you are not the user'
         )
     
     product_data = {
@@ -123,17 +119,14 @@ async def product_create(product:Product):
 
 async def  product_update(product_id:str,product:Product):
 
-    print('product_id',type(product_id))
-
     product_found=get_product(product_id)
 
     if not product_found:
         
         raise HTTPException(
-            status_code=404,detail='product not found'
+            status_code=204,detail='product not found'
         )
     
-    print('for product update=',dict(product))
     product=update_product(dict(product),product_id)
 
     return{
@@ -168,7 +161,7 @@ async def searching_product(name:Optional[str]=None,category:Optional[str]=None,
 
     if not query:
         raise HTTPException(
-            status_code=404,detail='product not found'
+            status_code=204,detail='product not found'
 
         )
 
@@ -176,9 +169,9 @@ async def searching_product(name:Optional[str]=None,category:Optional[str]=None,
 
     if not products:
         raise HTTPException(
-            status_code=404,detail='product not found'
+            status_code=204,detail='product not found'
         )
-
+    
     return products
 
 
