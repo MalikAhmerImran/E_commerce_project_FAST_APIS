@@ -33,10 +33,14 @@ class Product(BaseModel):
 
 class ShoppingCart(BaseModel):
     customer_id:str
-    items:list
+    items:dict
+    quantity:int
     sub_total:int
     tax:int
     shipping:int
     
+class Cart(BaseModel):
+    quantity:int
+    token:str
 
     

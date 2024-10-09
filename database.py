@@ -10,6 +10,7 @@ client=MongoClient()
 db = client['user']  
 user_registration = db['user_registration']
 Products=db['Products']
+Shopping_Cart=db['Shopping_Cart']
 
 
 #function that will insert the user in data base
@@ -85,8 +86,12 @@ def list_products(query:Optional[dict]):
     return products
 
 
-# def list_products():
+#functions for shopping cart
 
-#     products=list(Products.find({},{'_id':0,'created_by':0,'token':0}))
+#function to add items in cart
 
-#     return products
+def insert_cart(data:dict):
+
+    results=Shopping_Cart.insert_one(data)
+
+    return results

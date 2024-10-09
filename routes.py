@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,Request
 from fastapi.encoders import jsonable_encoder
 from typing import Optional
 import jwt
 from models import(
     UserRegister,
     UserLogin,
-    Product
+    Product,
+    ShoppingCart,
+    Cart
 )
 from database import (
     find_user_by_email, 
@@ -14,7 +16,8 @@ from database import (
     get_product,
     insert_product,
     update_product,
-    list_products
+    list_products,
+    insert_cart
 )
 
 from utils import get_user
@@ -136,7 +139,7 @@ async def  product_update(product_id:str,product:Product):
 
 # function for listing the product
 @router.get('/product/list')
-async def  get_product():
+async def  get_products():
 
     products=list_products(None)
     return {
@@ -173,6 +176,48 @@ async def searching_product(name:Optional[str]=None,category:Optional[str]=None,
         )
     
     return products
+
+#CRUD operations for shopping cart module
+
+#creating the shopping cart
+@router.post('/cart/add/{product_id}')
+async def add_product_to_cart(product_id:str,cart:Cart):
+
+   
+
+    user=get_user(cart.token)
+
+    product=get_product(product_id)
+
+    price=product['price']
+
+
+
+    data={
+        'items':product,
+        'quantity':cart.quantity,
+        'sub_total':cart.quantity*price,
+        'customer_id':user['_id']
+    }
+
+    print(data['sub_total'])
+
+    results=insert_cart(data)
+
+    return {
+        'massage':'Added to cart '
+    }
+
+@router.post('/cart/get')
+async def get_cart_details():
+    pass
+
+
+
+    
+
+
+
 
 
 
