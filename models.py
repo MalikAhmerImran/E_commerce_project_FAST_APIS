@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from typing import Optional
 
 #creating the model of user 
 
@@ -40,7 +40,7 @@ class ShoppingCart(BaseModel):
     shipping:int
     
 class Cart(BaseModel):
-    quantity:int
-    token:str
+    quantity:Optional[int]=None
+    token:Optional[str]=None
 
     

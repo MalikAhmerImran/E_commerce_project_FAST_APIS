@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException,Request
 from fastapi.encoders import jsonable_encoder
 from typing import Optional
+from utils import get_user
 import jwt
+import os
 from models import(
     UserRegister,
     UserLogin,
@@ -17,11 +19,12 @@ from database import (
     insert_product,
     update_product,
     list_products,
-    insert_cart
-)
+    insert_cart,
+    get_cart_detail,
+    get_user_history,
+    get_similar_products
 
-from utils import get_user
-import os
+)
 
 router = APIRouter()
 
@@ -183,7 +186,6 @@ async def searching_product(name:Optional[str]=None,category:Optional[str]=None,
 @router.post('/cart/add/{product_id}')
 async def add_product_to_cart(product_id:str,cart:Cart):
 
-   
 
     user=get_user(cart.token)
 
@@ -197,10 +199,8 @@ async def add_product_to_cart(product_id:str,cart:Cart):
         'items':product,
         'quantity':cart.quantity,
         'sub_total':cart.quantity*price,
-        'customer_id':user['_id']
+        'customer_id':user['email']
     }
-
-    print(data['sub_total'])
 
     results=insert_cart(data)
 
@@ -208,34 +208,50 @@ async def add_product_to_cart(product_id:str,cart:Cart):
         'massage':'Added to cart '
     }
 
-@router.post('/cart/get')
-async def get_cart_details():
-    pass
+#get  the details of  shopping cart
 
-
-
+@router.get('/cart/get')
+async def get_cart_details(cart:Cart):
     
+    user=get_user(cart.token)
+    
+    results=get_cart_detail(user['email'])
 
+    payable_amount=0
+    
+    # to calculate the total payable amount from sub amounts 
+    for sub_total in results:
+        payable_amount+=sub_total['sub_total']
+   
+    return{
+        'cart_details':results,
+        'payable_amount':payable_amount
+        }
 
+#function to recommend the products based on shopping 
+@router.get('/products/recommendations')
+async def recommend_products(cart: Cart):
 
-
-
-
-
-
-
-
-
-      
-
-
-
-
-
-
-
-
-
-
+    user = get_user(cart.token)
+    
+    # Get user purchase history
+    purchased_products = get_user_history(user['email'])
+    
+    if not purchased_products:
+        raise HTTPException(
+            status_code=204, detail='No purchase history found for recommendations'
+        )
+    
+    # Get similar products based on purchased history
+    recommendations = get_similar_products(purchased_products)
+    
+    if not recommendations:
+        raise HTTPException(
+            status_code=204, detail='No recommendations available'
+        )
+    
+    return {
+        'recommendations': recommendations
+        }
 
 

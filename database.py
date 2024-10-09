@@ -95,3 +95,29 @@ def insert_cart(data:dict):
     results=Shopping_Cart.insert_one(data)
 
     return results
+
+#function to get the cart details
+
+def get_cart_detail(email:str):
+
+    results = Shopping_Cart.find({'customer_id': email}, {'_id': 0, 'items._id': 0,'items.created_by':0,'items.token':0})
+
+    result_list = list(results)
+
+    return result_list
+
+
+
+# function to get user purchase history
+def get_user_history(email: str):
+
+    history = Shopping_Cart.find({'customer_id': email}, {'_id': 0, 'items.name': 1})
+    product_names = [item['items']['name'] for item in history]
+    return product_names
+
+# function to get similar products based on history
+def get_similar_products(purchased_product_names: list):
+    # Find products in the same category or with similar names
+    query = {"name": {"$in": purchased_product_names}}
+    similar_products = list(Products.find(query, {'_id': 0, 'created_by': 0, 'token': 0}))
+    return similar_products
